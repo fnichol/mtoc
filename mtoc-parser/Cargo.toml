@@ -1,0 +1,23 @@
+[package]
+name = "mtoc-parser"
+version = "0.1.0"
+authors = ["Fletcher Nichol <fnichol@nichol.ca>"]
+edition = "2018"
+license = "Apache-2.0 OR MIT"
+readme = "README.md"
+repository = "https://github.com/fnichol/mtoc"
+documentation = "https://docs.rs/mtoc-parser"
+keywords = ["commonmark", "documentation", "markdown", "parser", "toc"]
+categories = ["development-tools", "parsing", "text-processing"]
+description = """
+Produces an iterator of headings and a formatter which together produce a
+hierarchical table of contents of Markdown (CommomMark) documents.
+"""
+
+[dependencies]
+lazy_static = "1.3.0"
+pulldown-cmark = { version = "0.5.1", default-features = false }
+regex = "1.1.6"
+
+[dev-dependencies]
+version-sync = "0.8"
