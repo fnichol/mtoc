@@ -1,0 +1,18 @@
+[package]
+name = "mtoc"
+version = "0.1.0"
+authors = ["Fletcher Nichol <fnichol@nichol.ca>"]
+edition = "2018"
+license = "Apache-2.0 OR MIT"
+readme = "README.md"
+repository = "https://github.com/fnichol/mtoc"
+documentation = "https://github.com/fnichol/mtoc"
+keywords = []
+categories = []
+description = """
+A Markdown (CommonMark) Table of Contents generator for your README,
+CHANGELOG, or whatever you want!
+"""
+
+[dependencies]
+mtoc-parser = { path = "../mtoc-parser" }
