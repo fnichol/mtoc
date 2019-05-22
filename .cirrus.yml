@@ -1,0 +1,20 @@
+container:
+  image: rust:latest
+
+check_task:
+  cargo_cache:
+    folder: $CARGO_HOME/registry
+    fingerprint_script: cat Cargo.lock
+  before_cache_script: rm -rf "$CARGO_HOME/registry/index"
+  install_script:
+    - cargo install cargo-make
+  check_script: cargo make check-flow
+
+test_task:
+  cargo_cache:
+    folder: $CARGO_HOME/registry
+    fingerprint_script: cat Cargo.lock
+  before_cache_script: rm -rf "$CARGO_HOME/registry/index"
+  install_script:
+    - cargo install cargo-make
+  test_script: cargo make ci-flow
