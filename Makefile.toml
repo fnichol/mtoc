@@ -1,0 +1,24 @@
+[env]
+CARGO_MAKE_EXTEND_WORKSPACE_MAKEFILE = "true"
+
+[tasks.check]
+description = "Checks all linting, styling, & other rules"
+dependencies = [
+  "clippy",
+  "check-format"
+]
+
+[tasks.check-format]
+args = [
+  "fmt",
+  "--verbose",
+  "--",
+  "--check",
+]
+
+[tasks.clippy]
+args = [
+  "clippy",
+  "--all-targets",
+  "--all-features",
+]
