@@ -39,6 +39,12 @@ task:
 
   matrix:
     - matrix:
+        - name: test_${RUST_VERSION}_freebsd
+          freebsd_instance:
+            image: freebsd-11-2-release-amd64
+          env:
+            CARGO_HOME: "$HOME/.cargo"
+            PATH: "$CARGO_HOME/bin:$PATH"
         - name: test_${RUST_VERSION}_linux
           container:
             image: rust:latest
