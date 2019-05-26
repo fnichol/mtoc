@@ -1,11 +1,44 @@
 [env]
 CARGO_MAKE_EXTEND_WORKSPACE_MAKEFILE = "true"
 
-[tasks.check]
-description = "Checks all linting, styling, & other rules"
+[tasks.ci-lint-flow]
+description = "CI task runs cargo clippy"
+category = "CI"
 dependencies = [
   "clippy",
-  "check-format"
+]
+
+[tasks.ci-format-flow]
+description = "CI task runs cargo fmt with check"
+category = "CI"
+dependencies = [
+  "check-format",
+]
+
+[tasks.ci-check-flow]
+description = "Checks all linting, styling, & other rules"
+category = "CI"
+dependencies = [
+  "ci-lint-flow",
+  "ci-format-flow"
+]
+
+[tasks.ci-build-flow]
+description = "CI task runs cargo build with verbose output"
+category = "CI"
+dependencies = [
+  "pre-build",
+  "build-verbose",
+  "post-build",
+]
+
+[tasks.ci-test-flow]
+description = "CI task runs cargo test with verbose output"
+category = "CI"
+dependencies = [
+  "pre-test",
+  "test-verbose",
+  "post-test",
 ]
 
 [tasks.check-format]
