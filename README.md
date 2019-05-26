@@ -25,6 +25,7 @@ _TODO:_ Document and implement application! In the meantime, check out the
 
 | Operating System | Stable Rust                                                      | Nightly Rust                                                       | Oldest Rust                                                      |
 | ---------------: | ---------------------------------------------------------------- | ------------------------------------------------------------------ | ---------------------------------------------------------------- |
+|          FreeBSD | [![FreeBSD Stable Build Status][badge-stable_freebsd-build]][ci] | [![FreeBSD Nightly Build Status][badge-nightly_freebsd-build]][ci] | [![FreeBSD Oldest Build Status][badge-oldest_freebsd-build]][ci] |
 |            Linux | [![Linux Stable Build Status][badge-stable_linux-build]][ci]     | [![Linux Nightly Build Status][badge-nightly_linux-build]][ci]     | [![Linux Oldest Build Status][badge-oldest_linux-build]][ci]     |
 |            macOS | [![macOS Stable Build Status][badge-stable_macos-build]][ci]     | [![macOS Nightly Build Status][badge-nightly_macos-build]][ci]     | [![macOS Oldest Build Status][badge-oldest_macos-build]][ci]     |
 |          Windows | [![Windows Stable Build Status][badge-stable_windows-build]][ci] | [![Windows Nightly Build Status][badge-nightly_windows-build]][ci] | [![Windows Oldest Build Status][badge-oldest_windows-build]][ci] |
@@ -33,6 +34,7 @@ _TODO:_ Document and implement application! In the meantime, check out the
 
 | Operating System | Stable Rust                                                    | Nightly Rust                                                     | Oldest Rust                                                    |
 | ---------------: | -------------------------------------------------------------- | ---------------------------------------------------------------- | -------------------------------------------------------------- |
+|          FreeBSD | [![FreeBSD Stable Test Status][badge-stable_freebsd-test]][ci] | [![FreeBSD Nightly Test Status][badge-nightly_freebsd-test]][ci] | [![FreeBSD Oldest Test Status][badge-oldest_freebsd-test]][ci] |
 |            Linux | [![Linux Stable Test Status][badge-stable_linux-test]][ci]     | [![Linux Nightly Test Status][badge-nightly_linux-test]][ci]     | [![Linux Oldest Test Status][badge-oldest_linux-test]][ci]     |
 |            macOS | [![macOS Stable Test Status][badge-stable_macos-test]][ci]     | [![macOS Nightly Test Status][badge-nightly_macos-test]][ci]     | [![macOS Oldest Test Status][badge-oldest_macos-test]][ci]     |
 |          Windows | [![Windows Stable Test Status][badge-stable_windows-test]][ci] | [![Windows Nightly Test Status][badge-nightly_windows-test]][ci] | [![Windows Oldest Test Status][badge-oldest_windows-test]][ci] |
@@ -70,6 +72,10 @@ dual licensed as above, without any additional terms or conditions.
 [badge-github-dl]:
   https://img.shields.io/github/downloads/fnichol/mtoc/total.svg
 [badge-license]: https://img.shields.io/crates/l/mtoc.svg
+[badge-nightly_freebsd-build]:
+  https://api.cirrus-ci.com/github/fnichol/mtoc.svg?task=test_nightly_freebsd&script=build
+[badge-nightly_freebsd-test]:
+  https://api.cirrus-ci.com/github/fnichol/mtoc.svg?task=test_nightly_freebsd&script=test
 [badge-nightly_linux-build]:
   https://api.cirrus-ci.com/github/fnichol/mtoc.svg?task=test_nightly_linux&script=build
 [badge-nightly_linux-test]:
@@ -82,6 +88,10 @@ dual licensed as above, without any additional terms or conditions.
   https://api.cirrus-ci.com/github/fnichol/mtoc.svg?task=test_nightly_windows&script=build
 [badge-nightly_windows-test]:
   https://api.cirrus-ci.com/github/fnichol/mtoc.svg?task=test_nightly_windows&script=test
+[badge-oldest_freebsd-build]:
+  https://api.cirrus-ci.com/github/fnichol/mtoc.svg?task=test_1.34.0_freebsd&script=build
+[badge-oldest_freebsd-test]:
+  https://api.cirrus-ci.com/github/fnichol/mtoc.svg?task=test_1.34.0_freebsd&script=test
 [badge-oldest_linux-build]:
   https://api.cirrus-ci.com/github/fnichol/mtoc.svg?task=test_1.34.0_linux&script=build
 [badge-oldest_linux-test]:
@@ -95,6 +105,10 @@ dual licensed as above, without any additional terms or conditions.
 [badge-oldest_windows-test]:
   https://api.cirrus-ci.com/github/fnichol/mtoc.svg?task=test_1.34.0_windows&script=test
 [badge-overall]: https://api.cirrus-ci.com/github/fnichol/mtoc.svg
+[badge-stable_freebsd-build]:
+  https://api.cirrus-ci.com/github/fnichol/mtoc.svg?task=test_stable_freebsd&script=build
+[badge-stable_freebsd-test]:
+  https://api.cirrus-ci.com/github/fnichol/mtoc.svg?task=test_stable_freebsd&script=test
 [badge-stable_linux-build]:
   https://api.cirrus-ci.com/github/fnichol/mtoc.svg?task=test_stable_linux&script=build
 [badge-stable_linux-test]:
