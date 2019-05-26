@@ -1,20 +1,126 @@
-container:
-  image: rust:latest
+task:
+  name: check
+  container:
+    image: rust:latest
+  env:
+    RUST_VERSION: stable
 
-check_task:
+  install_rustup_script: |
+    curl -sSfL https://sh.rustup.rs \
+      | sh -s -- -y --default-toolchain none --no-modify-path
+  install_rust_script: rustup default "$RUST_VERSION"
+
   cargo_cache:
     folder: $CARGO_HOME/registry
-    fingerprint_script: cat Cargo.lock
-  before_cache_script: rm -rf "$CARGO_HOME/registry/index"
-  install_script:
-    - cargo install cargo-make
-  check_script: cargo make check-flow
+    fingerprint_script: echo "${CIRRUS_OS}"; cat Cargo.lock
 
-test_task:
-  cargo_cache:
-    folder: $CARGO_HOME/registry
-    fingerprint_script: cat Cargo.lock
+  cargo_make_cache:
+    folder: $CARGO_HOME/opt/cargo-make
+    fingerprint_script: |
+      echo "$CIRRUS_OS"
+      echo "$RUST_VERSION"
+      ./.ci/crate_version.sh cargo-make
+    populate_script: ./.ci/cargo_install_cache_populate_script.sh cargo-make
+
   before_cache_script: rm -rf "$CARGO_HOME/registry/index"
-  install_script:
-    - cargo install cargo-make
-  test_script: cargo make ci-flow
+
+  link_plugins_script: ln -snf "$CARGO_HOME"/opt/*/bin/* "$CARGO_HOME"/bin/
+
+  lint_script: cargo "+$RUST_VERSION" make ci-lint-flow
+  format_script: cargo "+$RUST_VERSION" make ci-format-flow
+
+task:
+  env:
+    matrix:
+      - RUST_VERSION: stable
+      - RUST_VERSION: nightly
+      - RUST_VERSION: 1.34.0 # Minimum supported Rust version
+  allow_failures: $RUST_VERSION == 'nightly'
+
+  matrix:
+    - matrix:
+        - name: test_${RUST_VERSION}_linux
+          container:
+            image: rust:latest
+        - name: test_${RUST_VERSION}_macos
+          osx_instance:
+            image: high-sierra-xcode-9.4.1
+          env:
+            CARGO_HOME: "$HOME/.cargo"
+            PATH: "$CARGO_HOME/bin:$PATH"
+
+      install_rustup_script: |
+        curl -sSfL https://sh.rustup.rs \
+          | sh -s -- -y --default-toolchain none --no-modify-path
+      install_rust_script: rustup default "$RUST_VERSION"
+
+      cargo_cache:
+        folder: $CARGO_HOME/registry
+        fingerprint_script: echo "${CIRRUS_OS}"; cat Cargo.lock
+
+      cargo_make_cache:
+        folder: $CARGO_HOME/opt/cargo-make
+        fingerprint_script: |
+          echo "$CIRRUS_OS"
+          echo "$RUST_VERSION"
+          ./.ci/crate_version.sh cargo-make
+        populate_script: ./.ci/cargo_install_cache_populate_script.sh cargo-make
+
+      before_cache_script: rm -rf "$CARGO_HOME/registry/index"
+
+      link_plugins_script: ln -snf "$CARGO_HOME"/opt/*/bin/* "$CARGO_HOME"/bin/
+
+      build_script: cargo "+$RUST_VERSION" make ci-build-flow
+      test_script: cargo "+$RUST_VERSION" make ci-test-flow
+
+    - name: test_${RUST_VERSION}_windows
+      windows_container:
+        image: cirrusci/windowsservercore:cmake
+        os_version: 2019
+      env:
+        CARGO_HOME: $USERPROFILE\.cargo
+        PATH: $CARGO_HOME\bin;$PATH
+
+      install_rustup_script:
+        - ps: |
+            & ([scriptblock]::Create((New-Object System.Net.WebClient).
+              DownloadString('https://gist.github.com/fnichol/699d3c2930649a9932f71bab8a315b31/raw/rustup-init.ps1')
+              )) -y --default-toolchain none --no-modify-path
+      install_rust_script:
+        - ps: rustup default "$env:RUST_VERSION"
+
+      cargo_cache:
+        folder: $CARGO_HOME\registry
+        fingerprint_script:
+          - ps: $env:CIRRUS_OS; Get-Content Cargo.lock
+
+      cargo_make_cache:
+        folder: $CARGO_HOME\opt\cargo-make
+        fingerprint_script:
+          - ps: |
+              $env:CIRRUS_OS
+              $env:RUST_VERSION
+              .\.ci\crate_version.ps1 cargo-make
+        populate_script:
+          - ps: .\.ci\cargo_install_cache_populate_script.ps1 cargo-make
+
+      before_cache_script:
+        - ps: |
+            if (Test-Path "$env:CARGO_HOME\registry\index") {
+              Remove-Item -Recurse -Force "$env:CARGO_HOME\registry\index"
+            }
+
+      link_plugins_script:
+        - ps: |
+            Get-ChildItem "$env:CARGO_HOME\opt\*\bin\*.exe" | ForEach-Object {
+              $dst = "$env:CARGO_HOME\bin\$($_.Name)"
+
+              if (-Not (Test-Path "$dst")) {
+                New-Item -Path "$dst" -Type SymbolicLink -Value "$_" | Out-Null
+              }
+            }
+
+      build_script:
+        - ps: cargo "+$env:RUST_VERSION" make ci-build-flow
+      test_script:
+        - ps: cargo "+$env:RUST_VERSION" make ci-test-flow
