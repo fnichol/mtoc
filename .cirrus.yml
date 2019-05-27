@@ -19,8 +19,8 @@ task:
     fingerprint_script: |
       echo "$CIRRUS_OS"
       echo "$RUST_VERSION"
-      ./.ci/crate_version.sh cargo-make
-    populate_script: ./.ci/cargo_install_cache_populate_script.sh cargo-make
+      ./.ci/crate-version.sh cargo-make
+    populate_script: ./.ci/cargo-cache-install.sh cargo-make
 
   before_cache_script: rm -rf "$CARGO_HOME/registry/index"
 
@@ -69,8 +69,8 @@ task:
         fingerprint_script: |
           echo "$CIRRUS_OS"
           echo "$RUST_VERSION"
-          ./.ci/crate_version.sh cargo-make
-        populate_script: ./.ci/cargo_install_cache_populate_script.sh cargo-make
+          ./.ci/crate-version.sh cargo-make
+        populate_script: ./.ci/cargo-cache-install.sh cargo-make
 
       before_cache_script: rm -rf "$CARGO_HOME/registry/index"
 
@@ -106,9 +106,9 @@ task:
           - ps: |
               $env:CIRRUS_OS
               $env:RUST_VERSION
-              .\.ci\crate_version.ps1 cargo-make
+              .\.ci\crate-version.ps1 cargo-make
         populate_script:
-          - ps: .\.ci\cargo_install_cache_populate_script.ps1 cargo-make
+          - ps: .\.ci\cargo-cache-install.ps1 cargo-make
 
       before_cache_script:
         - ps: |
