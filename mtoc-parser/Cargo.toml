@@ -10,8 +10,8 @@ documentation = "https://docs.rs/mtoc-parser"
 keywords = ["commonmark", "documentation", "markdown", "parser", "toc"]
 categories = ["development-tools", "parsing", "text-processing"]
 description = """
-Produces an iterator of headings and a formatter which together produce a
-hierarchical table of contents of Markdown (CommomMark) documents.
+A library to write a hierarchical table of contents into a Markdown
+(CommonMark) document.
 """
 
 [dependencies]
@@ -20,4 +20,5 @@ pulldown-cmark = { version = "0.5.1", default-features = false }
 regex = "1.1.6"
 
 [dev-dependencies]
+indoc = "0.3.3"
 version-sync = "0.8"
