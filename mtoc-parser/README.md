@@ -6,9 +6,6 @@
 
 [![Build Status][build-badge]][build]
 
-Produces an iterator of headings and a formatter which together produce a
-hierarchical table of contents of Markdown (CommomMark) documents.
-
 **Table of Contents**
 
 <!-- toc -->
@@ -23,6 +20,10 @@ hierarchical table of contents of Markdown (CommomMark) documents.
 - [Contribution](#contribution)
 
 <!-- tocstop -->
+
+A library to write a hierarchical table of contents into a Markdown ([CommonMark]) document.
+
+[CommonMark]: https://commonmark.org/
 
 ## About
 
