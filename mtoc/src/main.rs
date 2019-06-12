@@ -5,7 +5,7 @@
 // http://opensource.org/licenses/MIT>, at your option. This file may not be copied, modified, or
 // distributed except according to those terms.
 
-use mtoc_parser::{headers, Formatter, Header};
+use mtoc_parser::{headers, Format, Formatter, Header};
 use std::env;
 use std::fs::File;
 use std::io::{BufReader, Read};

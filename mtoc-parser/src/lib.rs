@@ -204,5 +204,5 @@ mod format;
 mod header;
 mod normalize;
 
-pub use format::Formatter;
+pub use format::{Format, Formatter};
 pub use header::{headers, Header, Headers};

@@ -5,7 +5,7 @@
 // http://opensource.org/licenses/MIT>, at your option. This file may not be copied, modified, or
 // distributed except according to those terms.
 
-use mtoc_parser::{headers, Formatter};
+use mtoc_parser::{headers, Format, Formatter};
 
 const MD: &str = "# Title\n## Introduction\n## Body\n### Detail\n### Detail\n## Conclusion";
 

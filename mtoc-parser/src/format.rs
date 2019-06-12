@@ -6,6 +6,7 @@
 // distributed except according to those terms.
 
 use crate::Header;
+use std::default::Default;
 use std::io::{self, Write};
 
 const ALTERNATING_BULLET_STYLES: &[&str] = &["-", "*", "+"];
@@ -13,11 +14,29 @@ const ALTERNATING_BULLET_STYLES: &[&str] = &["-", "*", "+"];
 /// An output formatter for an Iterator of [`Header`]s.
 ///
 /// This is primary method of consuming an Iterator of `Header` `struct`s and formatting them for
-/// output. The [`fmt`] function takes the `Header`s and anything that implements the `Write`
-/// trait.
+/// output. The [`Format`] trait implementation takes the `Header`s and anything that implements
+/// the `Write` trait.
 ///
+/// # Examples
+///
+/// Basic usage, using the `Default` implementation and writing to an output `Vec` of bytes:
+///
+/// ```rust
+/// use mtoc_parser::{headers, Format, Formatter};
+/// use std::str;
+///
+/// let input = "# Title";
+/// let mut output = Vec::new();
+///
+/// Formatter::default()
+///     .fmt(&mut output, headers(input))
+///     .unwrap();
+///
+/// assert_eq!("- [Title](#title)\n", str::from_utf8(&output).unwrap());
+/// ```
+///
+/// [`Format`]: trait.Format.html
 /// [`Header`]: struct.Header.html
-/// [`fmt`]: #method.fmt
 pub enum Formatter<'a> {
     /// A formatter that alternates between dashes (`-`), asterisks (`*`), and pluses (`+`) when
     /// formatting deeply nested [`Header`] entries. For example:
@@ -111,36 +130,15 @@ impl<'a> Default for Formatter<'a> {
     }
 }
 
-impl<'a> Formatter<'a> {
-    /// Formats an `Iterator` of [`Header`]s onto a 'writer'.
-    ///
-    /// The writer may be any value that implements the `Write` trait.
-    ///
-    /// # Examples
-    ///
-    /// Basic usage, using the `Default` implementation and writing to an output `Vec` of bytes:
-    ///
-    /// ```rust
-    /// use mtoc_parser::{headers, Formatter};
-    /// use std::str;
-    ///
-    /// let input = "# Title";
-    /// let mut output = Vec::new();
-    ///
-    /// Formatter::default()
-    ///     .fmt(&mut output, headers(input))
-    ///     .unwrap();
-    ///
-    /// assert_eq!("- [Title](#title)\n", str::from_utf8(&output).unwrap());
-    /// ```
-    pub fn fmt<W, I>(&self, out: &mut W, mut headers: I) -> io::Result<()>
+impl<'a> Format for Formatter<'a> {
+    fn fmt<W, I>(&self, out: &mut W, mut headers: I) -> io::Result<()>
     where
         W: Write,
         I: Iterator<Item = Header>,
     {
         use Formatter::*;
 
-        headers.try_for_each(|header| match *self {
+        headers.try_for_each(|header| match self {
             AlternatingBullets => format_alternating_bullets(out, header),
             DashBullets => format_symbols(out, header, "-"),
             PlusBullets => format_symbols(out, header, "+"),
@@ -149,6 +147,80 @@ impl<'a> Formatter<'a> {
             Numbers => format_symbols(out, header, "1."),
         })
     }
+}
+
+/// A trait for objects which can format a collection of [`Header`]s to a 'writer'.
+///
+/// The behavior is defined by one required method, [`fmt`]:
+///
+/// * The [`fmt`] method writes out the `Header`s to the provided 'writer' which is an object
+///   implementing the `Write` trait.
+///
+/// # Examples
+///
+/// An example of implementing a custom `Format` implementation:
+///
+/// ```rust
+/// use mtoc_parser::{headers, Format, Header};
+/// use std::default::Default;
+/// use std::io::{self, Write};
+/// use std::str;
+///
+/// // Setup an empty struct to hold the trait behavior
+/// struct DebugFormatter;
+///
+/// // The `Format` trait requires a `Default` trait implementation
+/// impl Default for DebugFormatter {
+///     fn default() -> Self {
+///         DebugFormatter
+///     }
+/// }
+///
+/// // Implement the `Format` trait. In this case, output the members of each `Header`.
+/// impl Format for DebugFormatter {
+///     fn fmt<W, I>(&self, writer: &mut W, mut headers: I) -> io::Result<()>
+///     where
+///         W: Write,
+///         I: Iterator<Item = Header>,
+///     {
+///         headers.try_for_each(|h| {
+///             writeln!(
+///                 writer,
+///                 "* {{ level={}, title={:?}, anchor={:?} }}",
+///                 h.level(),
+///                 h.title(),
+///                 h.anchor()
+///             )
+///         })
+///     }
+/// }
+///
+/// let input = "# Title";
+/// let mut output = Vec::new();
+///
+/// DebugFormatter.fmt(&mut output, headers(input)).unwrap();
+///
+/// assert_eq!(
+///     "* { level=1, title=\"Title\", anchor=\"#title\" }\n",
+///     str::from_utf8(&output).unwrap()
+/// );
+/// ```
+///
+/// [`Header`]: struct.Header.html
+/// [`fmt`]: #tymethod.fmt
+pub trait Format: Default {
+    /// Writes out a collection of [`Header`]s to the provided 'writer'.
+    ///
+    /// # Errors
+    ///
+    /// Each call to the writer's underlying `write` method may generate an I/O error indicating
+    /// the operation could not be completed.
+    ///
+    /// [`Header`]: struct.Header.html
+    fn fmt<W, I>(&self, writer: &mut W, headers: I) -> io::Result<()>
+    where
+        W: Write,
+        I: Iterator<Item = Header>;
 }
 
 fn format_alternating_bullets<W: Write>(out: &mut W, header: Header) -> io::Result<()> {
