@@ -17,7 +17,7 @@ hierarchical table of contents of Markdown (CommomMark) documents.
 - [Usage](#usage)
   * [Quick Example](#quick-example)
   * [Headers Iterator](#headers-iterator)
-  * [Formatting](#formatting)
+  * [Table of Contents Formatting](#table-of-contents-formatting)
 - [Related Projects and References](#related-projects-and-references)
 - [License](#license)
 - [Contribution](#contribution)
@@ -31,13 +31,16 @@ This library parses a Markdown ([CommonMark]) string slice and generates an `Ite
 level is captured, its title is normalized for Markdown output, and a URL anchor slug is
 generated. The title and anchor slug conform to the auto-generated links produced by GitHub
 Markdown rendering and Gists. The `Header`s can be consumed, mutated, transformed, filtered
-over trivially as they are presented via an `Iterator`. Finally a [`Formatter`] is present
-which can consume `Header`s and output a formatted table of contents to a 'writer' which
-implementes the `Write` trait.
+over trivially as they are presented via an `Iterator`. A [`Formatter`] is provided which can
+consume `Header`s and output a formatted table of contents to a 'writer' which implements the
+`Write` trait. Finally, a [`WriterBuilder`] is provided which combines all of the above (with
+reasonable defaults) and writes the table of contents inlined into the source Markdown document
+to a provided 'writer'.
 
 [CommonMark]: https://commonmark.org/
 [`Formatter`]: enum.Formatter.html
 [`Header`]: struct.Header.html
+[`WriterBuilder`]: struct.WriterBuilder.html
 
 ## Usage
 
@@ -50,50 +53,44 @@ mtoc-parser = "0.1.0"
 
 ### Quick Example
 
-To parse a Markdown ([CommonMark]) string slice and output a table of contents to the standard
-output stream, you can use the default [`Formatter`] and the [`headers`] function together:
+To parse a Markdown ([CommonMark]) string slice and output the document with a table of
+contents to the standard output stream, use the default [`WriterBuilder`] behavior:
 
 ```rust
-use mtoc_parser::{headers, Formatter};
+use mtoc_parser::WriterBuilder;
 
-let input = "# Title\n## Introduction\n## Body\n### Detail\n### Detail\n## Conclusion";
+let input =
+    "# Title\n\n<!-- toc -->\n\n## Intro\n## Body\n### Detail\n### Detail\n## Conclusion\n";
 
-Formatter::default()
-    .fmt(&mut std::io::stdout(), headers(input))
+WriterBuilder::new(input)
+    .write(&mut std::io::stdout().lock())
     .unwrap();
 ```
 
-which would write the following on standard out:
+which would write the following on standard output:
 
 ```markdown
-- [Title](#title)
-  * [Introduction](#introduction)
-  * [Body](#body)
-    + [Detail](#detail)
-    + [Detail](#detail-1)
-  * [Conclusion](#conclusion)
-```
+# Title
 
-The `Formatter` writes output to a 'writer' which implements the `Write` trait, so you can also
-format a table of contents in memory:
+<!-- toc -->
 
-```rust
-use mtoc_parser::{headers, Formatter};
-use std::str;
+- [Intro](#intro)
+- [Body](#body)
+  * [Detail](#detail)
+  * [Detail](#detail-1)
+- [Conclusion](#conclusion)
 
-let input = "# Title";
-let mut output = Vec::new();
+<!-- tocstop -->
 
-Formatter::default()
-    .fmt(&mut output, headers(input))
-    .unwrap();
-
-assert_eq!("- [Title](#title)\n", str::from_utf8(&output).unwrap());
+## Intro
+## Body
+### Detail
+### Detail
+## Conclusion
 ```
 
 [CommonMark]: https://commonmark.org/
-[`Formatter`]: enum.Formatter.html
-[`headers`]: fn.headers.html
+[`WriterBuilder`]: struct.WriterBuilder.html
 
 ### Headers Iterator
 
@@ -133,7 +130,49 @@ assert_eq!("[Introduction](#introduction)", format!("{}", titles[0]));
 [`Headers`]: struct.Headers.html
 [`headers`]: fn.headers.html
 
-### Formatting
+### Table of Contents Formatting
+
+To output a table of contents to the standard output stream, you can use the default
+[`Formatter`] and the [`headers`] function together:
+
+```rust
+use mtoc_parser::{headers, Format, Formatter};
+
+let input = "# Title\n## Introduction\n## Body\n### Detail\n### Detail\n## Conclusion";
+
+Formatter::default()
+    .fmt(&mut std::io::stdout(), headers(input))
+    .unwrap();
+```
+
+which would write the following on standard output:
+
+```markdown
+- [Title](#title)
+  * [Introduction](#introduction)
+  * [Body](#body)
+    + [Detail](#detail)
+    + [Detail](#detail-1)
+  * [Conclusion](#conclusion)
+```
+
+The `Formatter` writes output to a 'writer' which implements the `Write` trait, so you can also
+format a table of contents in memory:
+
+```rust
+use mtoc_parser::{headers, Format, Formatter};
+use std::str;
+
+let input = "# Title";
+let mut output = Vec::new();
+
+Formatter::default()
+    .fmt(&mut output, headers(input))
+    .unwrap();
+
+assert_eq!("- [Title](#title)\n", str::from_utf8(&output).unwrap());
+```
+To format using the default, `AlternatingBullets`:
 
 ```rust
 let mut output = Vec::new();
@@ -148,6 +187,8 @@ assert_eq!(Some("  * [Level 2](#level-2)"), lines.next());
 assert_eq!(Some("    + [Level 3](#level-3)"), lines.next());
 ```
 
+To format with numbering:
+
 ```rust
 let mut output = Vec::new();
 let iter = headers("# Level 1\n## Level 2\n### Level 3");
@@ -161,6 +202,8 @@ assert_eq!(Some("   1. [Level 2](#level-2)"), lines.next());
 assert_eq!(Some("      1. [Level 3](#level-3)"), lines.next());
 ```
 
+Or to format with a custom string:
+
 ```rust
 let mut output = Vec::new();
 let iter = headers("# Level 1\n## Level 2\n### Level 3");
@@ -173,6 +216,9 @@ assert_eq!(Some("★ [Level 1](#level-1)"), lines.next());
 assert_eq!(Some("  ★ [Level 2](#level-2)"), lines.next());
 assert_eq!(Some("    ★ [Level 3](#level-3)"), lines.next());
 ```
+
+The `Formatter` implementation is nothing special, so the headers can be output by simply
+consuming the `Headers` iterator:
 
 ```rust
 let mut output = Vec::new();
