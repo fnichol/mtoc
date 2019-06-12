@@ -6,13 +6,9 @@
 
 [![Build Status][build-badge]][build]
 
-Produces an iterator of headings and a formatter which together produce a
-hierarchical table of contents of Markdown (CommomMark) documents.
-
 **Table of Contents**
 
 <!-- toc -->
-<!-- tocstop -->
 
 {{readme}}
 

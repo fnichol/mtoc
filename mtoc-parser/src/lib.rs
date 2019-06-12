@@ -5,6 +5,10 @@
 // http://opensource.org/licenses/MIT>, at your option. This file may not be copied, modified, or
 // distributed except according to those terms.
 
+//! A library to write a hierarchical table of contents into a Markdown ([CommonMark]) document.
+//!
+//! [CommonMark]: https://commonmark.org/
+//!
 //! # About
 //!
 //! This library parses a Markdown ([CommonMark]) string slice and generates an `Iterator` of
