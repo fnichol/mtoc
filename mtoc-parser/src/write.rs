@@ -115,16 +115,17 @@ impl<'a, 'c, 'd> WriterBuilder<'a, 'c, 'd> {
     /// [`Formatter`]: struct.Formatter.html
     /// [`Formatter::AlternatingBullets`]: enum.Formatter.html#variant.AlternatingBullets
     /// [`Header`]: struct.Header.html
-    pub fn formatter<'b, F>(self, formatter: F) -> WriterFormatBuilder<'a, 'b, 'c, 'd, F>
+    pub fn formatter<'b, F>(self, formatter: F) -> Writer<'a, 'b, 'c, 'd, F>
     where
         F: Format + 'b,
     {
-        WriterFormatBuilder {
+        Writer {
             src: self.src,
             begin_marker: self.begin_marker,
             end_marker: self.end_marker,
             phantom: PhantomData,
             formatter,
+            headers: None,
         }
     }
 
@@ -227,7 +228,7 @@ impl<'a, 'c, 'd> WriterBuilder<'a, 'c, 'd> {
         self
     }
 
-    /// Writes the Markdown document with inlined table of contents to the provided 'writer'.AsMut
+    /// Writes the Markdown document with inlined table of contents to the provided 'writer'.
     ///
     /// Note that this method will consume the iterator of [`Header`]s and returns an internal type
     /// which does not provide the `write` method. To re-populate the iterator, simply call
@@ -239,7 +240,7 @@ impl<'a, 'c, 'd> WriterBuilder<'a, 'c, 'd> {
     pub fn write<'b, W: Write>(
         self,
         writer: &mut W,
-    ) -> io::Result<WriterFormatBuilder<'a, 'b, 'c, 'd, Formatter<'b>>> {
+    ) -> io::Result<Writer<'a, 'b, 'c, 'd, Formatter<'b>>> {
         let formatter = Formatter::default();
         let headers = crate::headers(self.src)
             .filter(|h| h.level() > 1)
@@ -251,70 +252,18 @@ impl<'a, 'c, 'd> WriterBuilder<'a, 'c, 'd> {
     }
 }
 
-pub struct WriterFormatBuilder<'a, 'b, 'c, 'd, F>
-where
-    F: Format + 'b,
-{
-    src: &'a str,
-    formatter: F,
-    begin_marker: &'c str,
-    end_marker: &'d str,
-    phantom: PhantomData<&'b F>,
-}
-
-impl<'a, 'b, 'c, 'd, F> WriterFormatBuilder<'a, 'b, 'c, 'd, F>
-where
-    F: Format + 'b,
-{
-    pub fn formatter<G>(self, formatter: G) -> WriterFormatBuilder<'a, 'b, 'c, 'd, G>
-    where
-        G: Format + 'b,
-    {
-        WriterFormatBuilder {
-            src: self.src,
-            begin_marker: self.begin_marker,
-            end_marker: self.end_marker,
-            phantom: PhantomData,
-            formatter,
-        }
-    }
-
-    pub fn headers(self, headers: Box<Iterator<Item = Header> + 'a>) -> Writer<'a, 'b, 'c, 'd, F> {
-        Writer {
-            src: self.src,
-            formatter: self.formatter,
-            begin_marker: self.begin_marker,
-            end_marker: self.end_marker,
-            phantom: PhantomData,
-            headers,
-        }
-    }
-
-    pub fn begin_marker(mut self, begin_marker: &'c str) -> Self {
-        self.begin_marker = begin_marker;
-        self
-    }
-
-    pub fn end_marker(mut self, end_marker: &'d str) -> Self {
-        self.end_marker = end_marker;
-        self
-    }
-
-    pub fn write<W: Write>(self, writer: &mut W) -> io::Result<Self> {
-        let headers = crate::headers(self.src)
-            .filter(|h| h.level() > 1)
-            .map(Header::promote);
-        self.headers(Box::new(headers)).write(writer)
-    }
-}
-
+/// Intermediate writer builder containing a formatter and headers.
+///
+/// For more detail, see [`WriterBuilder`].
+///
+/// [`WriterBuilder`]: struct.WriterBuilder.html
 pub struct Writer<'a, 'b, 'c, 'd, F>
 where
     F: Format + 'b,
 {
     src: &'a str,
     formatter: F,
-    headers: Box<Iterator<Item = Header> + 'a>,
+    headers: Option<Box<Iterator<Item = Header> + 'a>>,
     begin_marker: &'c str,
     end_marker: &'d str,
     phantom: PhantomData<&'b F>,
@@ -324,11 +273,13 @@ impl<'a, 'b, 'c, 'd, F> Writer<'a, 'b, 'c, 'd, F>
 where
     F: Format + 'b,
 {
-    pub fn headers(mut self, headers: Box<Iterator<Item = Header> + 'a>) -> Self {
-        self.headers = headers;
-        self
-    }
-
+    /// Sets a custom [`Format`] implementation for the table of contents [`Header`] elements.
+    ///
+    /// For more detail, see `WriterBuilder`'s [`formatter`].
+    ///
+    /// [`Format`]: trait.Format.html
+    /// [`Header`]: struct.Header.html
+    /// [`formatter`]: struct.WriterBuilder.html#method.formatter
     pub fn formatter<G>(self, formatter: G) -> Writer<'a, 'b, 'c, 'd, G>
     where
         G: Format + 'b,
@@ -343,20 +294,57 @@ where
         }
     }
 
+    /// Sets a custom `Iterator` of [`Header`]s to be used for the table of contents.
+    ///
+    /// For more detail, see `WriterBuilder`'s [`headers`].
+    ///
+    /// [`Header`]: struct.Header.html
+    /// [`headers`]: struct.WriterBuilder.html#method.headers
+    pub fn headers(mut self, headers: Box<Iterator<Item = Header> + 'a>) -> Self {
+        self.headers = Some(headers);
+        self
+    }
+
+    /// Sets a custom beginning marker where the table of contents will be inserted.
+    ///
+    /// For more detail, see `WriterBuilder`'s [`begin_marker`].
+    ///
+    /// [`begin_marker`]: struct.WriterBuilder.html#method.begin_marker
     pub fn begin_marker(mut self, begin_marker: &'c str) -> Self {
         self.begin_marker = begin_marker;
         self
     }
 
+    /// Sets a custom ending marker up to where the table of contents will be inserted.
+    ///
+    /// For more detail, see `WriterBuilder`'s [`end_marker`].
+    ///
+    /// [`end_marker`]: struct.WriterBuilder.html#method.end_marker
     pub fn end_marker(mut self, end_marker: &'d str) -> Self {
         self.end_marker = end_marker;
         self
     }
 
-    pub fn write<W: Write>(
-        self,
-        writer: &mut W,
-    ) -> io::Result<WriterFormatBuilder<'a, 'b, 'c, 'd, F>> {
+    /// Writes the Markdown document with inlined table of contents to the provided 'writer'.
+    ///
+    /// For more detail, see `WriterBuilder`'s [`write`].
+    ///
+    /// [`write`]: struct.WriterBuilder.html#method.write
+    pub fn write<W: Write>(self, writer: &mut W) -> io::Result<Self> {
+        match self.headers {
+            Some(_) => self.write_impl(writer),
+            None => {
+                let headers = crate::headers(self.src)
+                    .filter(|h| h.level() > 1)
+                    .map(Header::promote);
+
+                self.headers(Box::new(headers)).write_impl(writer)
+            }
+        }
+    }
+
+    // pre-condition: `headers` *must* be set
+    fn write_impl<W: Write>(mut self, writer: &mut W) -> io::Result<Self> {
         let mut parser = Parser::new(self.src).into_offset_iter();
 
         match begin_marker_eol_idx(self.src, self.begin_marker, &mut parser) {
@@ -367,7 +355,8 @@ where
                 )?;
 
                 writer.write_all(b"\n")?;
-                self.formatter.fmt(writer, self.headers)?;
+                self.formatter
+                    .fmt(writer, self.headers.expect("headers should not be None"))?;
                 writer.write_all(b"\n")?;
 
                 match end_marker_sol_idx(self.src, self.end_marker, &mut parser) {
@@ -391,13 +380,8 @@ where
             }
         }
 
-        Ok(WriterFormatBuilder {
-            src: self.src,
-            formatter: self.formatter,
-            begin_marker: self.begin_marker,
-            end_marker: self.end_marker,
-            phantom: PhantomData,
-        })
+        self.headers = None;
+        Ok(self)
     }
 }
 
