@@ -257,4 +257,4 @@ mod write;
 
 pub use format::{Format, Formatter};
 pub use header::{headers, Header, Headers};
-pub use write::WriterBuilder;
+pub use write::{Writer, WriterBuilder};
