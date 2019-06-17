@@ -102,7 +102,7 @@ pub(crate) struct Args {
     #[structopt(
         short = "o",
         long = "output",
-        conflicts_with = "IN_PLACE",
+        conflicts_with = "in_place",
         rename_all = "screaming_snake_case"
     )]
     output: Option<PathBuf>,

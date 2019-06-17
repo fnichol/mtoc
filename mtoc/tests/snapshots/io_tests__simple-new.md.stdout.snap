@@ -1,0 +1,31 @@
+---
+created: "2019-06-15T22:34:56.708864565Z"
+creator: insta@0.8.1
+source: mtoc/tests/io_tests.rs
+expression: stdout(&cmd)
+---
+# Title
+
+<!-- toc -->
+
+- [Introduction](#introduction)
+- [Body](#body)
+  * [Detail](#detail)
+- [Conclusion](#conclusion)
+
+<!-- tocstop -->
+
+## Introduction
+
+Introduction content.
+
+## Body
+
+### Detail
+
+Cool detail.
+
+## Conclusion
+
+Concluding remarks.
+
