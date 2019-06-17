@@ -43,7 +43,7 @@ task:
           freebsd_instance:
             image: freebsd-11-2-release-amd64
           env:
-            CARGO_HOME: "$HOME/.cargo"
+            CARGO_HOME: "/root/.cargo"
             PATH: "$CARGO_HOME/bin:$PATH"
         - name: test_${RUST_VERSION}_linux
           container:
