@@ -55,3 +55,29 @@ args = [
   "--all-targets",
   "--all-features",
 ]
+
+[tasks.readme]
+description = ""
+category = ""
+env = { "CARGO_MAKE_MEMBER_TASK" = "member-readme" }
+run_task = "do-on-members"
+
+[tasks.member-readme]
+dependencies = [
+  "update-readme-toc",
+]
+
+[tasks.update-readme-toc]
+command = "mtoc"
+args = [
+  "--in-place",
+  "README.md",
+]
+
+[tasks.generate-readme]
+command = "cargo"
+args = [
+  "readme",
+  "--output",
+  "README.md",
+]

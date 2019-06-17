@@ -16,6 +16,15 @@ _CHANGELOG_, or whatever you want!
 
 <!-- toc -->
 
+- [CI Status](#ci-status)
+  * [Build](#build)
+  * [Test](#test)
+  * [Check](#check)
+- [License](#license)
+- [Contribution](#contribution)
+
+<!-- tocstop -->
+
 _TODO:_ Document and implement application! In the meantime, check out the
 [`mtoc-parser`](mtoc-parser/README.md) library.
 
