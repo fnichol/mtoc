@@ -59,16 +59,17 @@ fn try_main() -> Result<()> {
 
     match args.output() {
         Some(output) => write_to_file(builder, output),
-        None => match args.is_in_place() {
-            true => {
+        None => {
+            if args.is_in_place() {
                 debug!("writing in-place");
                 match args.input() {
                     Some(input) => write_to_file(builder, input),
                     None => write_to_stdout(builder),
                 }
+            } else {
+                write_to_stdout(builder)
             }
-            false => write_to_stdout(builder),
-        },
+        }
     }
 }
 
