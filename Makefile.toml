@@ -54,6 +54,9 @@ args = [
   "clippy",
   "--all-targets",
   "--all-features",
+  "--",
+  "-D",
+  "warnings",
 ]
 
 [tasks.readme]
