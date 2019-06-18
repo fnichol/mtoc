@@ -2,4 +2,5 @@
 dependencies = [
   "generate-readme",
   "update-readme-toc",
+  "format-readme",
 ]

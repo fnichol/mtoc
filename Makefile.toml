@@ -65,14 +65,18 @@ run_task = "do-on-members"
 [tasks.member-readme]
 dependencies = [
   "update-readme-toc",
+  "format-readme",
 ]
 
 [tasks.update-readme-toc]
 command = "mtoc"
 args = [
   "--in-place",
+  "--format",
+  "dashes",
   "README.md",
 ]
+install_crate = { crate_name = "mtoc", binary = "mtoc", test_arg = "--help" }
 
 [tasks.generate-readme]
 command = "cargo"
@@ -80,4 +84,28 @@ args = [
   "readme",
   "--output",
   "README.md",
+]
+
+[tasks.format-readme]
+command = "prettier"
+args = [
+  "--write",
+  "README.md",
+]
+install_script = [
+  '''
+  if ! command -v prettier; then
+    npm install --global prettier
+  fi
+  '''
+]
+
+[tasks.format-readme.windows]
+extend = "format-readme"
+install_script = [
+  '''
+  if (-not (Get-Command prettier -ErrorAction SilentlyContinue)) {
+    npm install --global prettier
+  }
+  '''
 ]
