@@ -18,6 +18,7 @@
   - [Headers Iterator](#headers-iterator)
   - [Table of Contents Formatting](#table-of-contents-formatting)
 - [Related Projects and References](#related-projects-and-references)
+- [Code of Conduct](#code-of-conduct)
 - [License](#license)
   - [Contribution](#contribution)
 
@@ -266,6 +267,10 @@ assert_eq!(Some("[Level 3](#level-3)"), lines.next());
 - [Anchors in Markdown](https://gist.github.com/asabaylus/3071099) Gist with
   good links, discussions and edge conditions
 
+## Code of Conduct
+
+This project follows the [Rust Code of Conduct][code-of-conduct].
+
 ## License
 
 Licensed under either of
@@ -293,6 +298,7 @@ dual licensed as above, without any additional terms or conditions.
 [badge-version]:
   https://img.shields.io/crates/v/mtoc-parser.svg?style=flat-square
 [ci]: https://cirrus-ci.com/github/fnichol/mtoc
+[code-of-conduct]: https://www.rust-lang.org/policies/code-of-conduct
 [crate]: https://crates.io/crates/mtoc-parser
 [docs]: https://docs.rs/mtoc-parser
 [github]: https://github.com/fnichol/mtoc/tree/master/mtoc-parser

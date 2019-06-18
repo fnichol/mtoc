@@ -20,6 +20,7 @@ _CHANGELOG_, or whatever you want!
   - [Build (master branch)](#build-master-branch)
   - [Test (master branch)](#test-master-branch)
   - [Check (master branch)](#check-master-branch)
+- [Code of Conduct](#code-of-conduct)
 - [License](#license)
   - [Contribution](#contribution)
 
@@ -54,6 +55,10 @@ _TODO:_ Document and implement application! In the meantime, check out the
 | ------ | ------------------------------------------------- |
 | Lint   | [![Lint Status][badge-check-lint]][ci-master]     |
 | Format | [![Format Status][badge-check-format]][ci-master] |
+
+## Code of Conduct
+
+This project follows the [Rust Code of Conduct][code-of-conduct].
 
 ## License
 
@@ -134,6 +139,7 @@ dual licensed as above, without any additional terms or conditions.
 [badge-version]: https://img.shields.io/crates/v/mtoc.svg?style=flat-square
 [ci]: https://cirrus-ci.com/github/fnichol/mtoc
 [ci-master]: https://cirrus-ci.com/github/fnichol/mtoc/master
+[code-of-conduct]: https://www.rust-lang.org/policies/code-of-conduct
 [commonmark]: https://commonmark.org/
 [crate]: https://crates.io/crates/mtoc
 [docs]: https://docs.rs/mtoc
