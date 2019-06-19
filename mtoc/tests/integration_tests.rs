@@ -11,13 +11,19 @@ use assert_cmd::prelude::*;
 use helper::*;
 use predicates::prelude::*;
 
+const VERSION: &str = env!("CARGO_PKG_VERSION");
+
 #[test]
 fn version_short() {
     mtoc()
         .arg("-V")
         .assert()
         .success()
-        .stdout(format!("{} {}\n", BIN_NAME, env!("CARGO_PKG_VERSION")))
+        .stdout(
+            predicate::str::starts_with(format!("{} {}", BIN_NAME, VERSION))
+                .and(predicate::str::contains(format!("binary: {}", BIN_NAME)).not())
+                .and(predicate::str::contains(format!("release: {}", VERSION)).not()),
+        )
         .stderr("");
 }
 
@@ -27,7 +33,11 @@ fn version_long() {
         .arg("--version")
         .assert()
         .success()
-        .stdout(format!("{} {}\n", BIN_NAME, env!("CARGO_PKG_VERSION")))
+        .stdout(
+            predicate::str::starts_with(format!("{} {}", BIN_NAME, VERSION))
+                .and(predicate::str::contains(format!("binary: {}", BIN_NAME)))
+                .and(predicate::str::contains(format!("release: {}", VERSION))),
+        )
         .stderr("");
 }
 
