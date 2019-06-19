@@ -11,7 +11,8 @@ use std::convert::TryInto;
 use std::fs::File;
 use std::io::{BufReader, Read};
 use std::path::{Path, PathBuf};
-use structopt::{clap::arg_enum, clap::AppSettings, StructOpt};
+use structopt::clap::{arg_enum, AppSettings};
+use structopt::StructOpt;
 
 /// The "about" string for help messages.
 const ABOUT: &str = concat!(
@@ -78,6 +79,8 @@ EXAMPLES:
     max_term_width = "100",
     about = "ABOUT",
     long_about = "LONG_ABOUT",
+    version = "BuildInfo::version_short()",
+    long_version = "BuildInfo::version_long()",
     after_help = "AFTER_HELP"
 ))]
 pub(crate) struct Args {
@@ -240,6 +243,19 @@ impl Args {
             Some(input) => string_from_path(input),
             None => string_from_stdin(),
         }
+    }
+}
+
+/// Build time metadata
+struct BuildInfo;
+
+impl BuildInfo {
+    fn version_short() -> &'static str {
+        include_str!(concat!(env!("OUT_DIR"), "/version_short.txt"))
+    }
+
+    fn version_long() -> &'static str {
+        include_str!(concat!(env!("OUT_DIR"), "/version_long.txt"))
     }
 }
 
