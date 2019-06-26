@@ -100,13 +100,14 @@ pub(crate) struct Args {
     /// When this option is used, the output will be written to the OUTPUT file. If no OUTPUT is
     /// specified, mtoc will write the Markdown to the standard output stream.
     ///
-    /// This option conflicts with the -i/--in-place option and only one should be used. If the
-    /// OUTPUT is the same as INPUT, then -i/--in-place should be used instead.
+    /// This option conflicts with the -i/--in-place option and the -c/--check flag so only one
+    /// should be used. If the OUTPUT is the same as INPUT, then -i/--in-place should be used
+    /// instead.
     #[structopt(
         short = "o",
         long = "output",
-        conflicts_with = "in_place",
-        rename_all = "screaming_snake_case"
+        rename_all = "screaming_snake_case",
+        raw(conflicts_with_all = r#"&["check", "in_place"]"#)
     )]
     output: Option<PathBuf>,
 
@@ -116,9 +117,29 @@ pub(crate) struct Args {
     /// no INPUT is specified and this flag is used, the output will be written to the standard
     /// output stream.
     ///
-    /// This conflicts with the -o/--output option and only one should be used.
-    #[structopt(short = "i", long = "in-place")]
+    /// This conflicts with the -o/--output option and -c/--check flag so only one should be
+    /// used.
+    #[structopt(
+        short = "i",
+        long = "in-place",
+        raw(conflicts_with_all = r#"&["check", "OUTPUT"]"#)
+    )]
     in_place: bool,
+
+    /// Runs in check mode.
+    ///
+    /// In this mode, an exit code of '0' means that any existing table of contents is formatted
+    /// identically and up to date. An exit code of '1' means that an existing table of contents
+    /// would be updated.
+    ///
+    /// This conflicts with the -o/--output option and the -i/--in-place flag so only one should be
+    /// used.
+    #[structopt(
+        short = "c",
+        long = "check",
+        raw(conflicts_with_all = r#"&["in_place", "OUTPUT"]"#)
+    )]
+    check: bool,
 
     /// Sets the table of contents formatting.
     ///
@@ -210,6 +231,11 @@ impl Args {
         self.in_place
     }
 
+    /// Returns whether or not the "check" mode has been selected.
+    pub(crate) fn check_mode(&self) -> bool {
+        self.check
+    }
+
     /// Returns the custom begin marker, if provided.
     ///
     /// If the marker is `None`, then the default marker will be used.
@@ -243,6 +269,16 @@ impl Args {
             Some(input) => string_from_path(input),
             None => string_from_stdin(),
         }
+    }
+
+    /// Returns a `String` representing the input as a filename.
+    ///
+    /// If the input was from the standard input stream, then `"<stdin>"` is returned.
+    pub(crate) fn input_name(&self) -> String {
+        self.input
+            .as_ref()
+            .map(|i| i.to_string_lossy().to_string())
+            .unwrap_or_else(|| "<stdin>".to_string())
     }
 }
 

@@ -18,6 +18,7 @@ use std::process;
 use std::result;
 use structopt::StructOpt;
 
+mod check;
 mod cli;
 mod util;
 
@@ -57,17 +58,30 @@ fn try_main() -> Result<()> {
         builder = builder.end_marker(marker);
     }
 
-    match args.output() {
-        Some(output) => write_to_file(builder, output),
-        None => {
-            if args.is_in_place() {
-                debug!("writing in-place");
-                match args.input() {
-                    Some(input) => write_to_file(builder, input),
-                    None => write_to_stdout(builder),
+    if args.check_mode() {
+        info!("check mode");
+        let result = write_to_string(builder)?;
+        if buf == result {
+            info!("no change");
+            Ok(())
+        } else {
+            info!("differences detected");
+            check::write_diff(&buf, &result, args.input_name(), &mut io::stderr().lock())?;
+            process::exit(1);
+        }
+    } else {
+        match args.output() {
+            Some(output) => write_to_file(builder, output),
+            None => {
+                if args.is_in_place() {
+                    debug!("writing in-place");
+                    match args.input() {
+                        Some(input) => write_to_file(builder, input),
+                        None => write_to_stdout(builder),
+                    }
+                } else {
+                    write_to_stdout(builder)
                 }
-            } else {
-                write_to_stdout(builder)
             }
         }
     }
@@ -84,4 +98,12 @@ fn write_to_file(builder: Writer<Formatter>, path: &Path) -> Result<()> {
     let mut output = File::create(path)?;
     builder.write(&mut output)?;
     Ok(())
+}
+
+fn write_to_string(builder: Writer<Formatter>) -> Result<String> {
+    info!("writing to string");
+    let mut buf = Vec::new();
+    builder.write(&mut buf)?;
+
+    Ok(String::from_utf8(buf)?)
 }
