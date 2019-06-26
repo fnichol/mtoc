@@ -42,18 +42,59 @@ fn version_long() {
 }
 
 #[test]
-fn in_place_and_output_conflict() {
+fn check_and_output_conflict() {
     mtoc()
-        .arg("-i")
-        .arg("-o")
+        .arg("--check")
+        .arg("--output")
         .arg("nope.md")
         .assert()
         .failure()
         .stdout("")
         .stderr(
-            predicate::str::contains(
-                "The argument '--in-place' cannot be used with '--output <OUTPUT>'",
+            (predicate::str::contains(
+                "The argument '--output <OUTPUT>' cannot be used with '--check'",
             )
+            .or(predicate::str::contains(
+                "The argument '--check' cannot be used with '--output <OUTPUT>'",
+            )))
+            .and(predicate::str::contains("USAGE:")),
+        );
+}
+
+#[test]
+fn in_place_and_output_conflict() {
+    mtoc()
+        .arg("--in-place")
+        .arg("--output")
+        .arg("nope.md")
+        .assert()
+        .failure()
+        .stdout("")
+        .stderr(
+            (predicate::str::contains(
+                "The argument '--output <OUTPUT>' cannot be used with '--in-place'",
+            )
+            .or(predicate::str::contains(
+                "The argument '--in-place' cannot be used with '--output <OUTPUT>'",
+            )))
+            .and(predicate::str::contains("USAGE:")),
+        );
+}
+
+#[test]
+fn in_place_and_check_conflict() {
+    mtoc()
+        .arg("--in-place")
+        .arg("--check")
+        .arg("nope.md")
+        .assert()
+        .failure()
+        .stdout("")
+        .stderr(
+            (predicate::str::contains("The argument '--in-place' cannot be used with '--check'")
+                .or(predicate::str::contains(
+                    "The argument '--check' cannot be used with '--in-place'",
+                )))
             .and(predicate::str::contains("USAGE:")),
         );
 }
@@ -69,4 +110,73 @@ fn nonexistent_input_file() {
         .stderr(predicate::str::contains("No such file or directory").or(
             predicate::str::contains("The system cannot find the file specified"),
         ));
+}
+
+#[test]
+fn check_identical() {
+    mtoc()
+        .arg("--check")
+        .arg("simple-current.md")
+        .assert()
+        .success()
+        .stdout("")
+        .stderr("");
+}
+
+#[test]
+fn check_new_format_differs() {
+    mtoc()
+        .arg("--check")
+        .arg("--format")
+        .arg("asterisks")
+        .arg("simple-current.md")
+        .assert()
+        .failure()
+        .stdout("")
+        .stderr(
+            "\
+Diff in simple-current.md at line 2:
+ 
+ <!-- toc -->
+ 
+-- [Introduction](#introduction)
+-- [Body](#body)
++* [Introduction](#introduction)
++* [Body](#body)
+   * [Detail](#detail)
+-- [Conclusion](#conclusion)
++* [Conclusion](#conclusion)
+ 
+ <!-- tocstop -->
+ 
+",
+        );
+}
+
+#[test]
+fn check_new_missing_toc_differs() {
+    mtoc()
+        .arg("--check")
+        .arg("simple-new.md")
+        .assert()
+        .failure()
+        .stdout("")
+        .stderr(
+            "\
+Diff in simple-new.md at line 2:
+ 
+ <!-- toc -->
+ 
++- [Introduction](#introduction)
++- [Body](#body)
++  * [Detail](#detail)
++- [Conclusion](#conclusion)
++
++<!-- tocstop -->
++
+ ## Introduction
+ 
+ Introduction content.
+",
+        );
 }

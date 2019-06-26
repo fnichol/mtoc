@@ -21,6 +21,7 @@ human-panic = "1.0.1"
 log = "0.4.6"
 mtoc-parser = { path = "../mtoc-parser" }
 structopt = { version = "0.2.16", default-features = false, features = ["suggestions", "wrap_help"] }
+diff = "0.1.11"
 
 [dev-dependencies]
 assert_cmd = "0.11.1"
