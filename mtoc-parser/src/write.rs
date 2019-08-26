@@ -163,7 +163,7 @@ impl<'a, 'c, 'd> WriterBuilder<'a, 'c, 'd> {
     /// [module]: index.html
     pub fn headers<'b>(
         self,
-        headers: Box<Iterator<Item = Header> + 'a>,
+        headers: Box<dyn Iterator<Item = Header> + 'a>,
     ) -> Writer<'a, 'b, 'c, 'd, Formatter<'b>> {
         self.formatter(Formatter::default()).headers(headers)
     }
@@ -263,7 +263,7 @@ where
 {
     src: &'a str,
     formatter: F,
-    headers: Option<Box<Iterator<Item = Header> + 'a>>,
+    headers: Option<Box<dyn Iterator<Item = Header> + 'a>>,
     begin_marker: &'c str,
     end_marker: &'d str,
     phantom: PhantomData<&'b F>,
@@ -300,7 +300,7 @@ where
     ///
     /// [`Header`]: struct.Header.html
     /// [`headers`]: struct.WriterBuilder.html#method.headers
-    pub fn headers(mut self, headers: Box<Iterator<Item = Header> + 'a>) -> Self {
+    pub fn headers(mut self, headers: Box<dyn Iterator<Item = Header> + 'a>) -> Self {
         self.headers = Some(headers);
         self
     }
