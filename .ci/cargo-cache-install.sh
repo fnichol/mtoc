@@ -75,7 +75,8 @@ install_plugin() {
   local root="$2"
 
   mkdir -p "$root"
-  cargo install --root "$root" --force --verbose "$plugin"
+  rustup install stable
+  cargo +stable install --root "$root" --force --verbose "$plugin"
 
   # Create symbolic links for all execuatbles into $CARGO_HOME/bin
   ln -snf "$root/bin"/* "$CARGO_HOME/bin/"
