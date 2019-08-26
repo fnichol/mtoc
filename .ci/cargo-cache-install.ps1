@@ -30,7 +30,8 @@ function Install-Plugin([string]$Plugin, [string]$Root) {
     }
 
     Write-Debug "Installing $Plugin to $Root"
-    cargo install --root "$Root" --force --verbose "$Plugin"
+    rustup install stable
+    cargo +stable install --root "$Root" --force --verbose "$Plugin"
 
     # Create symbolic links for all execuatbles into $env:CARGO_HOME\bin
     Get-ChildItem "$Root\bin\*.exe" | ForEach-Object {
